@@ -16,7 +16,7 @@ spec:
     targetRevision: "HEAD"
   syncPolicy:
     automated:
-      prune: false
+      prune: true
       selfHeal: false
   ignoreDifferences:
     - group: argoproj.io
