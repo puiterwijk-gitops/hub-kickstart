@@ -6,5 +6,5 @@ resources:
 
 images:
   - name: policy-generator-plugin
-    newName: registry.redhat.io/rhacm2/multicluster-operators-subscription-rhel9
-    newTag: v2.11.3-5
+    newName: registry.redhat.io/rhacm2/multicluster-operators-subscription-rhel8
+    newTag: v2.8.7-18
