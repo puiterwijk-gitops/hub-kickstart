@@ -1,0 +1,3 @@
+resources:
+  - appproject.yaml
+  - app.yaml

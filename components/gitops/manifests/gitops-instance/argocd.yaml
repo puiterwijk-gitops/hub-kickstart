@@ -1,0 +1,133 @@
+apiVersion: argoproj.io/v1beta1
+kind: ArgoCD
+metadata:
+  name: openshift-gitops
+  namespace: openshift-gitops
+spec:
+  resourceTrackingMethod: annotation
+  applicationSet: {}
+  extraConfig:
+    exec.enabled: "true"
+    resource.respectRBAC: "normal"
+    resource.ignoreResourceUpdatesEnabled: "true"
+    resource.compareoptions: |
+      ignoreAggregatedRoles: true
+    ? resource.customizations.ignoreResourceUpdates.external-secrets.io_ExternalSecret
+    : |
+      jsonPointers:
+      - /status/refreshTime
+    ? resource.customizations.ignoreResourceUpdates.ocs.openshift.io_StorageCluster
+    : |
+      jsonPointers:
+      - /status
+      - /metadata/resourceVersion
+    ? resource.customizations.ignoreResourceUpdates.ocs.openshift.io_StorageSystem
+    : |
+      jsonPointers:
+      - /status
+      - /metadata/resourceVersion
+    resource.customizations.ignoreResourceUpdates.noobaa.io_Noobaa: |
+      jsonPointers:
+      - /status
+      - /metadata/resourceVersion
+    resource.customizations.ignoreResourceUpdates.noobaa.io_BackingStore: |
+      jsonPointers:
+      - /status
+      - /metadata/resourceVersion
+    accounts.admin: apiKey, login
+  kustomizeBuildOptions: "--enable-helm --enable-alpha-plugins"
+  controller:
+    resources:
+      limits:
+        memory: 4Gi
+      requests:
+        cpu: 1000m
+        memory: 3Gi
+  monitoring:
+    enabled: true
+  sso:
+    provider: Dex
+    dex:
+      openShiftOAuth: true
+  repo:
+    resources:
+      limits:
+        cpu: "1"
+        memory: 1.5Gi
+      requests:
+        cpu: 250m
+        memory: 768Mi
+  redis:
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 250m
+        memory: 256Mi
+  server:
+    insecure: true
+    host: 'gitops.{{ (lookup "config.openshift.io/v1" "Ingress" "openshift-ingress" "cluster").spec.domain }}'
+    route:
+      enabled: true
+      tls:
+        termination: edge
+        insecureEdgeTerminationPolicy: Redirect
+  notifications:
+    enabled: true
+  resourceIgnoreDifferences:
+    resourceIdentifiers:
+      - group: route.openshift.io
+        kind: Route
+        customization:
+          jsonPointers:
+            - /status/ingress
+            - /metadata/annotations
+      - group: quay.redhat.com
+        kind: QuayRegistry
+        customization:
+          jsonPointers:
+            - /status/ingress
+      - group: cluster.open-cluster-management.io
+        kind: ManagedCluster
+        customization:
+          jsonPointers:
+            - /spec/managedClusterClientConfigs
+  resourceExclusions: |
+    - apiGroups:
+      - tekton.dev
+      clusters:
+      - '*'
+      kinds:
+      - TaskRun
+      - PipelineRun
+    - apiGroups:
+      - operator.tekton.dev
+      clusters:
+      - '*'
+      kinds:
+      - TektonAddon
+      - TektonInstallerSet
+    - apiGroups:
+      - compliance.openshift.io
+      kinds:
+      - ComplianceCheckResult
+      - ComplianceRemediation
+    - apiGroups:
+      - policy.open-cluster-management.io
+      kinds:
+      - ConfigurationPolicy
+    - apiGroups:
+      - noobaa.io
+      kinds:
+      - NooBaa
+      - BucketClass
+  ha:
+    enabled: false
+  rbac:
+    defaultPolicy: "role:none"
+    policy: |
+      p, role:none, *, *, */*, deny
+      g, system:cluster-admins, role:admin
+      g, cluster-admins, role:admin
+    scopes: "[groups]"
