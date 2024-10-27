@@ -16,3 +16,4 @@ spec:
       server: https://kubernetes.default.svc
   sourceRepos:
     - https://github.com/puiterwijk-gitops/cluster-config
+    - https://github.com/puiterwijk-gitops/cluster-config-pins
