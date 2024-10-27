@@ -3,3 +3,8 @@ namespace: acm-policies
 resources:
   - ../../components/acm/base/
   - ../../components/gitops/
+
+images:
+  - name: policy-generator-plugin
+    newName: registry.redhat.io/rhacm2/multicluster-operators-subscription-rhel9
+    newTag: v2.11.3-5
