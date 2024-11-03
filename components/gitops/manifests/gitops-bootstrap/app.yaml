@@ -14,6 +14,8 @@ spec:
     path: bootstrap/overlays/{{ fromClusterClaim "gitops" }}
     repoURL: https://github.com/puiterwijk-gitops/cluster-config-pins.git
     targetRevision: "HEAD"
+    plugin:
+      name: setenv-cmp-plugin
   syncPolicy:
     automated:
       prune: true
