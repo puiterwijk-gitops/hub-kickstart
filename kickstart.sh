@@ -31,3 +31,6 @@ oc kustomize kickstarts/phase_3/ --enable-alpha-plugins | oc apply -f -
 
 echo "Labeling hub cluster..."
 oc label managedcluster local-cluster gitops=hub --overwrite=true
+
+echo "Removing kubeadmin user..."
+echo "Execute: oc -n kube-system delete secret kubeadmin"
