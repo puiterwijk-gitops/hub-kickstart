@@ -6,6 +6,7 @@ metadata:
 spec:
   resourceTrackingMethod: annotation
   applicationSet: {}
+  disableAdmin: true
   extraConfig:
     exec.enabled: "true"
     resource.respectRBAC: "normal"
